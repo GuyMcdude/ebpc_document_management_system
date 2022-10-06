@@ -42,7 +42,12 @@ const queryUser = (username) => {
             const userData = rows[0];
             if (err) {
                 reject(err);
-            } else {
+            } else if (userData == undefined || userData == '') {
+                resolve({
+                    ...userData,
+                    username: null
+                });
+            }else {
                 resolve({
                     ...userData,
                     username: userData.name
@@ -57,7 +62,7 @@ const queryUser = (username) => {
 passport.use(new LocalStrategy({}, async (username, password, done) => {
     const user = await queryUser(username);
     // const user = findByUsername(username)
-    if(!user) {
+    if(!user || user == null || user == undefined || user.username == null) {
         //console.log('User not found')
         return done(null, false, {message: 'User not found'})
     } else if (!(await bcrypt.compare(password, user.password))) {
