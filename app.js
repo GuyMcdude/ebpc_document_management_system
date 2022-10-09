@@ -18,6 +18,9 @@ const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 //uploading package
 var formidable = require('formidable');
+//multer
+const multer = require("multer");
+const upload = multer({ dest: "upload/" });
 //sqlite
 const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database(path.join(__dirname, '/db/ebpc_document_management_system.db3'))
@@ -152,6 +155,14 @@ app.post('/create_folder',checkSession, (req, res) => {
 app.get('/upload',checkSession, (req, res) => {
     res.render('upload', {userName: req.user.username})
 })
+app.post("/upload_files", upload.single("myfile"), uploadFiles);
+
+function uploadFiles(req, res) {
+    console.log(req.body);
+    console.log(JSON.stringify(req.file));
+    fs.renameSync(`./upload/${req.file.filename}`,`./upload/${req.file.originalname}`);
+    res.json({ message: "Successfully uploaded files" });
+}
 
 //login page
 app.get('/login', (req, res) => {
